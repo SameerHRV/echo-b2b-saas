@@ -21,8 +21,6 @@ export const addUser = mutation({
       throw new Error("Organization not found or Missing Organization");
     }
 
-    throw new Error("Sentry Error");
-
     const user = await ctx.db.insert("users", {
       name: "Rajeev Haapanahalli",
       email: "rajeev@echo.com",
