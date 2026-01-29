@@ -11,10 +11,15 @@ export const getManyUsers = query({
 export const addUser = mutation({
   args: {},
   handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (identity === null) {
+      throw new Error("Not authenticated");
+    }
     const user = await ctx.db.insert("users", {
       name: "Rajeev Haapanahalli",
       email: "rajeev@echo.com",
     });
+
     return user;
   },
 });
