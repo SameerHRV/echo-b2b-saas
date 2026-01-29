@@ -3,4 +3,5 @@ packages:
   - packages/*
 
 ignoredBuiltDependencies:
+  - '@clerk/shared'
   - esbuild
