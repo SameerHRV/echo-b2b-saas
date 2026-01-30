@@ -6,6 +6,8 @@ import { screenAtom } from "../../atoms/widget-atoms";
 import { WidgetErrorScreen } from "../screens/widget-error-screen";
 import { WidgetAuthScreen } from "../screens/widget-screen";
 import { WidgetLoadingScreen } from "../screens/widget-loading-screen";
+import { WidgetSelectionScreen } from "../screens/widget-selection-screen";
+import { WidgetChatScreen } from "../screens/widget-chat-screen";
 
 interface WidgetViewProps {
   organizationId: string;
@@ -17,8 +19,8 @@ export const WidgetView = ({ organizationId }: WidgetViewProps) => {
   const screenComponents: Record<WidgetScreen, React.ReactNode> = {
     error: <WidgetErrorScreen />,
     loading: <WidgetLoadingScreen organizationId={organizationId} />,
-    selection: <p>Selection Screen</p>,
-    chat: <p>Chat Screen</p>,
+    selection: <WidgetSelectionScreen />,
+    chat: <WidgetChatScreen />,
     auth: <WidgetAuthScreen />,
     contact: <p>Contact Screen</p>,
     voice: <p>Voice Screen</p>,
