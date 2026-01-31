@@ -1,8 +1,65 @@
+import { MessageDoc, saveMessage } from "@convex-dev/agent";
+import { paginationOptsValidator } from "convex/server";
 import { ConvexError, v } from "convex/values";
+import { components } from "../_generated/api";
 import { mutation, query } from "../_generated/server";
 import { supportAgent } from "../system/ai/agents/supportAgent";
-import { saveMessage } from "@convex-dev/agent";
-import { components } from "../_generated/api";
+
+export const getManyConversation = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    contactSessionId: v.id("contactSession"),
+  },
+  handler: async (ctx, args) => {
+    const contractSession = await ctx.db.get(args.contactSessionId);
+    if (!contractSession || contractSession.expiresAt < Date.now()) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Conversation Not Found",
+      });
+    }
+
+    const conversation = await ctx.db
+      .query("conversation")
+      .withIndex("by_contact_session_id", (q) =>
+        q.eq("contactSessionId", args.contactSessionId),
+      )
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    const conversationWithLastMessage = await Promise.all(
+      conversation.page.map(async (conversation) => {
+        let lastMessage: MessageDoc | null = null;
+
+        const message = await supportAgent.listMessages(ctx, {
+          threadId: conversation.threadId,
+          paginationOpts: {
+            numItems: 1,
+            cursor: null,
+          },
+        });
+
+        if (message.page.length > 0) {
+          lastMessage = message.page[0] ?? null;
+        }
+
+        return {
+          _id: conversation._id,
+          _creationTime: conversation._creationTime,
+          threadId: conversation.threadId,
+          status: conversation.status,
+          lastMessage,
+          organizationId: conversation.organizationId,
+        };
+      }),
+    );
+
+    return {
+      ...conversation,
+      page: conversationWithLastMessage,
+    };
+  },
+});
 
 export const getOneConversation = query({
   args: {
