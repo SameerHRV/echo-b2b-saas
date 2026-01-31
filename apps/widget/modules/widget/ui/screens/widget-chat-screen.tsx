@@ -18,6 +18,8 @@ import {
   AIMessage,
   AIMessageContent,
 } from "@workspace/ui/components/ai/message";
+import { useInfiniteScroll } from "@workspace/ui/hooks/use-infinite-hook";
+import { InfiniteScrollTrigger } from "@workspace/ui/components/infinite-scroll-trigger-";
 import { AIResponse } from "@workspace/ui/components/ai/response";
 import { Button } from "@workspace/ui/components/button";
 import { FormField } from "@workspace/ui/components/form";
@@ -25,6 +27,7 @@ import { useAction, useQuery } from "convex/react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { ArrowLeftIcon, MenuIcon } from "lucide-react";
 import { Form, useForm } from "react-hook-form";
+import { DicebareAvatar } from "@workspace/ui/components/dicebare-avatar";
 import z from "zod";
 import {
   contactSessionIdAtomFamily,
@@ -71,6 +74,14 @@ export const WidgetChatScreen = () => {
     },
   );
 
+  const { topElementRef, handleLoadMore, canLoadMore, isLoadingMore } =
+    useInfiniteScroll({
+      status: messages.status,
+      loadMore: messages.loadMore,
+      loadSize: 10,
+      observerEnabled: true,
+    });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -113,6 +124,12 @@ export const WidgetChatScreen = () => {
       </WidgetHeader>
       <AIConversation>
         <AIConversationContent>
+          <InfiniteScrollTrigger
+            canLoadMore={canLoadMore}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={handleLoadMore}
+            ref={topElementRef}
+          />
           {toUIMessages(messages.results ?? [])?.map((message) => {
             return (
               <AIMessage
@@ -122,6 +139,13 @@ export const WidgetChatScreen = () => {
                 <AIMessageContent>
                   <AIResponse>{message.text}</AIResponse>
                 </AIMessageContent>
+                {message.role === "assistant" && (
+                  <DicebareAvatar
+                    imageUrl="/logo.svg"
+                    seed="assistant"
+                    size={32}
+                  />
+                )}
               </AIMessage>
             );
           })}
