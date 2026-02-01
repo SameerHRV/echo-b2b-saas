@@ -6,7 +6,7 @@ export default defineSchema({
   conversation: defineTable({
     threadId: v.string(),
     organizationId: v.string(),
-    contactSessionId: v.string(),
+    contactSessionId: v.id("contactSession"),
     status: v.union(
       v.literal("resolved"),
       v.literal("unresolved"),

@@ -5,6 +5,60 @@ import { Doc, Id } from "../_generated/dataModel";
 import { query } from "../_generated/server";
 import { supportAgent } from "../system/ai/agents/supportAgent";
 
+export const getOneConversation = query({
+  args: {
+    conversationId: v.id("conversation"),
+  },
+
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Identity not found",
+      });
+    }
+
+    const orgId = identity.orgId as string;
+
+    if (!orgId) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Organization ID not found",
+      });
+    }
+
+    const conversation = await ctx.db.get(args.conversationId);
+    if (!conversation) {
+      throw new ConvexError({
+        code: "NOT_FOUND",
+        message: "Conversation not found",
+      });
+    }
+
+    if (conversation.organizationId !== orgId) {
+      throw new ConvexError({
+        code: "UNAUTHORIZED",
+        message: "Invalid Org ID",
+      });
+    }
+
+    const contactSession = await ctx.db.get(conversation.contactSessionId);
+
+    if (!contactSession) {
+      throw new ConvexError({
+        code: "NOT_FOUND",
+        message: "ContactSession not found",
+      });
+    }
+
+    return {
+      ...conversation,
+      contactSession,
+    };
+  },
+});
+
 export const getManyConversation = query({
   args: {
     paginationOpts: paginationOptsValidator,
@@ -61,9 +115,7 @@ export const getManyConversation = query({
       conversations.page.map(async (conversation) => {
         let lastMessage: MessageDoc | null = null;
 
-        const contactSession = await ctx.db.get(
-          conversation.contactSessionId as Id<"contactSession">,
-        );
+        const contactSession = await ctx.db.get(conversation.contactSessionId);
 
         if (!contactSession) {
           return null;

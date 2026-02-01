@@ -118,7 +118,7 @@ export const ConversationPanel = () => {
 
               return (
                 <Link
-                  href={`conversations/${conv._id}`}
+                  href={`/conversations/${conv._id}`}
                   key={conv._id}
                   className={cn(
                     "flex items-start gap-2 p-4 py-5 text-sm leading-tight hover:bg-accent hover:text-accent-foreground cursor-pointer relative border-b",
