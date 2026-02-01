@@ -8,6 +8,10 @@ export default defineSchema({
     organizationId: v.string(),
     contactSessionId: v.string(),
     status: v.union(
+      v.literal("resolved"),
+      v.literal("unresolved"),
+      v.literal("escalated"),
+      // Legacy values for backward compatibility
       v.literal("pending"),
       v.literal("completed"),
       v.literal("failed"),
