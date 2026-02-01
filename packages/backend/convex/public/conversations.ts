@@ -127,7 +127,7 @@ export const createConversation = mutation({
       contactSessionId: args.contactSessionId,
       organizationId: args.organizationId,
       threadId,
-      status: "pending",
+      status: "unresolved",
     });
 
     return conversationId;

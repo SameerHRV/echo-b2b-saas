@@ -40,10 +40,10 @@ export const createMessages = action({
       });
     }
 
-    if (conversation.status === "completed") {
+    if (conversation.status === "resolved") {
       throw new ConvexError({
         code: "BAD_REQUEST",
-        message: "Conversation completed",
+        message: "Conversation resolved",
       });
     }
 
