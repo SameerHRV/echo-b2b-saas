@@ -29,8 +29,8 @@ import { cn } from "@workspace/ui/lib/utils";
 
 const costomerSupportItems = [
   {
-    title: "Conversation",
-    url: "/conversation",
+    title: "Conversations",
+    url: "/conversations",
     icon: InboxIcon,
   },
   {
